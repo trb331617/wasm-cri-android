@@ -58,9 +58,22 @@ android {
 
     sourceSets {
         named("main") {
+            // Keep AGP defaults (java/, java/'s auto-added generated dirs).
+            // Add our Kotlin tree on top; do NOT reset java.srcDirs.
             java.srcDirs("src/main/kotlin")
             proto.srcDir("src/main/proto")
         }
+    }
+
+    // Make absolutely sure the kotlin compile task sees the generated
+    // Java sources from protoc.  AGP+kotlin-android usually does this
+    // automatically, but proto generation happens during configuration
+    // of *another* task and the wiring sometimes misses on the first run.
+    afterEvaluate {
+        tasks.matching { it.name.startsWith("compile") && it.name.endsWith("Kotlin") }
+            .configureEach {
+                dependsOn(tasks.matching { it.name.startsWith("generate") && it.name.endsWith("Proto") })
+            }
     }
 }
 
@@ -111,6 +124,10 @@ protobuf {
                 id("grpckt") { }
             }
             task.builtins {
+                // Java builtin is enabled by default, but some plugin/AGP
+                // version combos lose it once we add a kotlin builtin.
+                // Re-declaring here is a defensive no-op when it's already on.
+                id("java") { }
                 id("kotlin") { }
             }
         }

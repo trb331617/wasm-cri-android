@@ -22,7 +22,7 @@ sed -E '/gogo\.proto/d; /option \(gogoproto/d' "$IN" > "$OUT"
 
 # Inject Java options once
 if ! grep -q 'java_package' "$OUT"; then
-  sed -i 's|option go_package = "k8s.io/cri-api/pkg/apis/runtime/v1";|option go_package = "k8s.io/cri-api/pkg/apis/runtime/v1";\noption java_package = "io.runtime.v1";\noption java_multiple_files = true;\noption java_outer_classname = "CriProto";|' "$OUT"
+  sed -i 's|option go_package = "k8s.io/cri-api/pkg/apis/runtime/v1";|option go_package = "k8s.io/cri-api/pkg/apis/runtime/v1";\noption java_package = "io.runtime.v1";\noption java_multiple_files = true;|' "$OUT"
 fi
 
 echo "wrote $OUT ($(wc -l < "$OUT") lines)"
