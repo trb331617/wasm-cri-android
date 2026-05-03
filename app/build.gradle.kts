@@ -20,6 +20,20 @@ android {
         ndk {
             abiFilters += listOf("arm64-v8a")
         }
+
+        externalNativeBuild {
+            cmake {
+                cppFlags += ""
+                arguments += listOf("-DANDROID_STL=none")
+            }
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            path = file("src/main/cpp/CMakeLists.txt")
+            version = "3.22.1"
+        }
     }
 
     buildTypes {
@@ -58,22 +72,9 @@ android {
 
     sourceSets {
         named("main") {
-            // Keep AGP defaults (java/, java/'s auto-added generated dirs).
-            // Add our Kotlin tree on top; do NOT reset java.srcDirs.
             java.srcDirs("src/main/kotlin")
             proto.srcDir("src/main/proto")
         }
-    }
-
-    // Make absolutely sure the kotlin compile task sees the generated
-    // Java sources from protoc.  AGP+kotlin-android usually does this
-    // automatically, but proto generation happens during configuration
-    // of *another* task and the wiring sometimes misses on the first run.
-    afterEvaluate {
-        tasks.matching { it.name.startsWith("compile") && it.name.endsWith("Kotlin") }
-            .configureEach {
-                dependsOn(tasks.matching { it.name.startsWith("generate") && it.name.endsWith("Proto") })
-            }
     }
 }
 
@@ -88,12 +89,6 @@ dependencies {
     // ---- Protobuf ----
     implementation("com.google.protobuf:protobuf-kotlin:3.25.3")
     implementation("com.google.protobuf:protobuf-java:3.25.3")
-
-    // ---- Netty native epoll for AF_UNIX gRPC ----
-    // grpc-netty-shaded already shades netty; we add the *unshaded* native classifier
-    // because shaded netty can dynamically load it via the standard classpath.
-    // For Android arm64-v8a hosts, this jar contains libnetty_transport_native_epoll_aarch_64.so.
-    implementation("io.netty:netty-transport-native-epoll:4.1.110.Final:linux-aarch_64")
 
     // ---- Misc ----
     implementation("javax.annotation:javax.annotation-api:1.3.2")

@@ -82,8 +82,20 @@ class WasmEdgeRunner(
             }
         }, "wasm-wait-${c.id}").apply { isDaemon = true }.start()
 
-        return runCatching { proc.pid().toInt() }.getOrDefault(0)
+        return readPid(proc)
     }
+
+    /**
+     * `Process.pid()` was added to JDK in Java 9 and to Android in API 26.
+     * Some AGP / Kotlin / android.jar stub combos don't expose it at compile
+     * time even when minSdk is high enough. Reflection sidesteps the static
+     * checker; if it's still missing at runtime we just return 0 — pid is
+     * informational here, no code path consumes it.
+     */
+    private fun readPid(proc: Process): Int = runCatching {
+        val m = Process::class.java.getMethod("pid")
+        (m.invoke(proc) as Long).toInt()
+    }.getOrDefault(0)
 
     fun stop(id: String, timeoutMs: Long = 10_000) {
         val p = procs[id] ?: return
