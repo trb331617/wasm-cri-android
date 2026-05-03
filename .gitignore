@@ -1,0 +1,14 @@
+.gradle/
+build/
+.idea/
+local.properties
+captures/
+*.iml
+.cxx/
+gradle/wrapper/gradle-wrapper.jar
+*.apk
+*.aab
+*.keystore
+
+# Drop the wasmedge binary in jniLibs locally; do not commit large binaries.
+app/src/main/jniLibs/**/libwasmedge.so

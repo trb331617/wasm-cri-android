@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">WasmCRI</string>
+    <string name="start_service">Start CRI service</string>
+    <string name="stop_service">Stop CRI service</string>
+    <string name="socket_label">Socket:</string>
+</resources>
